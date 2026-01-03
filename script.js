@@ -2,9 +2,7 @@ console.log("script loaded");
 
 /* ===== Supabase 설정 ===== */
 const SUPABASE_URL = "https://ikzvfqibdsrbljooiinf.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrenZmcWliZHNyYmxqb29paW5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MDE1MDEsImV4cCI6MjA4Mjk3NzUwMX0.h8SlHAgPqY20QjlZoWfZheAGu9jpGqHpZaL9nwqX86c"; // 여기 교체해야 함
-
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrenZmcWliZHNyYmxqb29paW5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MDE1MDEsImV4cCI6MjA4Mjk3NzUwMX0.h8SlHAgPqY20QjlZoWfZheAGu9jpGqHpZaL9nwqX86c";
 /* HEADERS */
 const headers = {
   apikey: SUPABASE_KEY,
@@ -24,13 +22,6 @@ function daysSince(date) {
   return diff;
 }
 
-function setText(id, text) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.textContent = text ? text : "-";
-  }
-}
-
 function calcAge(birthday) {
   if (!birthday) return "-";
   const b = new Date(birthday);
@@ -39,21 +30,19 @@ function calcAge(birthday) {
   if (
     t.getMonth() < b.getMonth() ||
     (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())
-  )
+  ) {
     age--;
+  }
   return age;
 }
 
 function setText(id, text) {
   const el = document.getElementById(id);
-  if (el) {
-    // 텍스트가 없으면 "-" 표시
-    el.textContent =
-      text !== null && text !== undefined && text !== "" ? text : "-";
-  }
+  if (!el) return;
+  el.textContent =
+    text !== null && text !== undefined && text !== "" ? text : "-";
 }
 
-// ✅ URL에서 호스트명 추출 (툴팁에 “youtube.com” 같은 걸 보여주기 위함)
 function getHostname(url) {
   try {
     const host = new URL(url).hostname;
@@ -63,21 +52,39 @@ function getHostname(url) {
   }
 }
 
+function getIconClass(labelText) {
+  const t = (labelText || "").toString().trim().toLowerCase();
+
+  if (t.includes("youtube") || t.includes("유튜브")) return "fab fa-youtube";
+  if (t === "x" || t.includes("twitter") || t.includes("트위터"))
+    return "fab fa-x-twitter";
+  if (t.includes("twitch") || t.includes("트위치")) return "fab fa-twitch";
+  if (t.includes("instagram") || t.includes("인스타")) return "fab fa-instagram";
+  if (t.includes("tiktok") || t.includes("틱톡")) return "fab fa-tiktok";
+  if (t.includes("spotify") || t.includes("스포티파이")) return "fab fa-spotify";
+  if (t.includes("apple music") || t.includes("애플뮤직")) return "fab fa-apple";
+  if (t.includes("soundcloud") || t.includes("사운드클라우드"))
+    return "fab fa-soundcloud";
+  if (t.includes("cafe") || t.includes("카페")) return "fas fa-coffee";
+  if (t.includes("치지직")) return "fas fa-bolt";
+
+  return "fas fa-link";
+}
+
 /* ===== 카드 생성 ===== */
 function createCard(v) {
   const article = document.createElement("article");
   article.className = "vtuber-card";
 
-  /* 썸네일 */
   article.innerHTML = `
     <img src="${v.image_url || ""}" alt="버츄얼 유튜버">
-    <h4>${v.name}</h4>
+    <h4>${v.name || "-"}</h4>
     <p>${v.species || "-"} · ${v.gender || "-"}</p>
     <p>데뷔 D+${daysSince(v.debut_date)}</p>
     <button class="detail-btn">상세 보기</button>
   `;
 
-  article.querySelector(".detail-btn").addEventListener("click", () => {
+  article.querySelector(".detail-btn")?.addEventListener("click", () => {
     openModal(v);
   });
 
@@ -85,14 +92,14 @@ function createCard(v) {
 }
 
 /* ===== 상세 모달 ===== */
-/* ===== 상세 모달 ===== */
 function openModal(v) {
+  // 기본 정보
   setText("modal-name", v.name);
   setText("modal-gender", v.gender);
   setText("modal-birthday", v.birthday);
 
   const age = calcAge(v.birthday);
-  setText("modal-age", age ? age + "세" : "-");
+  setText("modal-age", age !== "-" ? `${age}세` : "-");
 
   setText("modal-species", v.species);
   setText("modal-fanname", v.fan_name);
@@ -103,95 +110,87 @@ function openModal(v) {
     v.debut_date ? `${v.debut_date} (D+${daysSince(v.debut_date)})` : "-"
   );
 
-  /* 제작자 정보 */
+  // 제작자 정보
   const creators = document.getElementById("modal-creators");
   if (creators) {
     creators.innerHTML = "";
-    if (!v.vtuber_creators || v.vtuber_creators.length === 0) {
+    const list = v.vtuber_creators || [];
+    if (list.length === 0) {
       creators.innerHTML = "<li>정보 없음</li>";
     } else {
-      v.vtuber_creators.forEach((c) => {
+      list.forEach((c) => {
         const li = document.createElement("li");
-        li.innerHTML = `${c.role}: <a href="${
-          c.twitter_url || "#"
-        }" target="_blank" rel="noopener noreferrer">${c.name}</a>`;
+        const name = c?.name || "제작자";
+        const role = c?.role || "역할";
+        const url = c?.twitter_url || "#";
+        li.innerHTML = `${role}: <a href="${url}" target="_blank" rel="noopener noreferrer">${name}</a>`;
         creators.appendChild(li);
       });
     }
   }
 
-  /* ⬇️ 링크 정보 (아이콘 + hover 툴팁용 data-site) ⬇️ */
-  const a = document.createElement("a");
-a.href = l.url;
-a.target = "_blank";
-a.rel = "noopener noreferrer";
-a.className = "link-icon";
+  // ✅ 링크 아이콘 + 아이콘 밑 작은 글씨(사이트명)
+  const linksContainer = document.getElementById("modal-links");
+  if (linksContainer) {
+    linksContainer.innerHTML = "";
+    const links = v.vtuber_links || [];
 
-const host = getHostname(l.url);                // 이미 만들었던 함수
-const labelText = (l.label || "").toString().trim();
+    if (links.length === 0) {
+      linksContainer.innerHTML = "<p>정보 없음</p>";
+    } else {
+      links.forEach((l) => {
+        const url = l?.url || "#";
+        const labelText = (l?.label || "").toString().trim();
+        const host = getHostname(url);
 
-// 캡션은 "라벨"이 있으면 라벨, 없으면 도메인
-const caption = labelText || host || "링크";
-
-// 접근성
-a.setAttribute("aria-label", caption);
-
-// ✅ 아이콘 동그라미 + 아래 캡션
-a.innerHTML = `
-  <span class="icon-bubble"><i class="${iconClass}"></i></span>
-  <span class="link-caption">${caption}</span>
-`;
-
-linksContainer.appendChild(a);
-
+        // 캡션: 라벨이 있으면 라벨, 없으면 도메인
+        const caption = labelText || host || "링크";
+        const iconClass = getIconClass(labelText || host);
 
         const a = document.createElement("a");
-        a.href = l?.url || "#";
+        a.href = url;
         a.target = "_blank";
         a.rel = "noopener noreferrer";
         a.className = "link-icon";
+        a.setAttribute("aria-label", caption);
 
-        // ✅ 툴팁 텍스트: "라벨 · 도메인" 형태
-        const host = getHostname(a.href);
-        const tooltip = host ? `${labelText} · ${host}` : labelText;
+        // (툴팁 CSS가 남아있어도 문제 없게 data-site도 채워둠)
+        a.dataset.site = caption;
 
-        // ✅ CSS의 ::after { content: attr(data-site); } 로 표시됨
-        a.dataset.site = tooltip;
-
-        // 브라우저 기본 title 툴팁은 겹치면 보기 싫어서 제거(원하면 켜도 됨)
-        // a.title = tooltip;
-
-        // 접근성(키보드/스크린리더)
-        a.setAttribute("aria-label", tooltip);
-
-        a.innerHTML = `<i class="${iconClass}"></i>`;
+        a.innerHTML = `
+          <span class="icon-bubble"><i class="${iconClass}"></i></span>
+          <span class="link-caption">${caption}</span>
+        `;
 
         linksContainer.appendChild(a);
       });
     }
   }
 
-  // 아바타 이미지 설정 (없으면 기본 이미지나 숨김 처리)
+  // 아바타
   const avatar = document.getElementById("modal-avatar");
   if (avatar) {
-    avatar.src = v.image_url || ""; // 이미지가 없으면 빈 값
-    avatar.alt = `${v.name} 아바타`;
+    avatar.src = v.image_url || "";
+    avatar.alt = `${v.name || "버츄얼 유튜버"} 아바타`;
   }
 
-  document.getElementById("detail-modal").classList.remove("hidden");
+  // 모달 표시
+  modal?.classList.remove("hidden");
 }
 
 /* ===== 모달 닫기 ===== */
-document.querySelector(".modal-close").onclick =
-  document.querySelector(".modal-overlay").onclick =
-  () => modal.classList.add("hidden");
+document.querySelector(".modal-close")?.addEventListener("click", () => {
+  modal?.classList.add("hidden");
+});
+document.querySelector(".modal-overlay")?.addEventListener("click", () => {
+  modal?.classList.add("hidden");
+});
 
 /* ===== Supabase → 카드 렌더 ===== */
 async function loadVtubers() {
   try {
     console.log("Supabase 데이터 로딩 시작");
 
-    /* REST API를 통한 Join fetch */
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/vtubers?select=*,vtuber_links(*),vtuber_creators(*)`,
       { headers }
@@ -200,14 +199,17 @@ async function loadVtubers() {
     if (!res.ok) {
       const text = await res.text();
       console.error("Supabase 오류", res.status, text);
+      if (cardGrid) cardGrid.innerHTML = "<p>데이터 로딩 실패</p>";
       return;
     }
 
     const data = await res.json();
-    console.log("불러온 VTuber 수:", data.length, data);
+    console.log("불러온 VTuber 수:", data.length);
+
+    if (!cardGrid) return;
 
     cardGrid.innerHTML = "";
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       cardGrid.innerHTML = "<p>등록된 버츄얼 유튜버가 없습니다.</p>";
       return;
     }
@@ -217,6 +219,7 @@ async function loadVtubers() {
     });
   } catch (err) {
     console.error("Supabase fetch 실패", err);
+    if (cardGrid) cardGrid.innerHTML = "<p>데이터 로딩 실패</p>";
   }
 }
 
@@ -224,6 +227,7 @@ async function loadVtubers() {
 document.addEventListener("DOMContentLoaded", () => {
   loadVtubers();
 });
+
 
 
 
