@@ -107,3 +107,37 @@ document.addEventListener("DOMContentLoaded", () => {
   cardGrid.innerHTML = "";
   cardGrid.appendChild(createCard(sampleVtuber));
 });
+
+async function loadVtubers() {
+  try {
+    console.log("Supabase fetch 시작");
+
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/vtubers?select=*,vtuber_links(*),vtuber_creators(*)`,
+      { headers }
+    );
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Supabase 응답 오류", res.status, text);
+      return;
+    }
+
+    const data = await res.json();
+    console.log("불러온 VTuber 수:", data.length, data);
+
+    cardGrid.innerHTML = "";
+
+    if (data.length === 0) {
+      cardGrid.innerHTML = "<p>데이터가 없습니다.</p>";
+      return;
+    }
+
+    data.forEach(v => cardGrid.appendChild(createCard(v)));
+
+  } catch (err) {
+    console.error("Supabase fetch 실패", err);
+  }
+}
+
+
