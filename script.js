@@ -1,39 +1,26 @@
 console.log("script loaded");
 
-/* ===== 샘플 데이터 ===== */
-const sampleVtuber = {
-  id: "1111-2222-3333",
-  name: "아오하 루미",
-  agency: "개인",
-  gender: "여성",
-  species: "수인 (여우)",
-  birthday: "2001-05-14",
-  debut_date: "2023-04-01",
-  fan_name: "루미네",
-  oshi_mark: "🦊✨",
-  status: "활동중",
-  image_url: "https://placehold.co/400x400?text=VTuber",
+/* ===== Supabase 설정 ===== */
+const SUPABASE_URL = "https://ikzvfqibdsrbljooiinf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrenZmcWliZHNyYmxqb29paW5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MDE1MDEsImV4cCI6MjA4Mjk3NzUwMX0.h8SlHAgPqY20QjlZoWfZheAGu9jpGqHpZaL9nwqX86c"; // 여기 교체해야 함
 
-  vtuber_creators: [
-    { role: "design", name: "디자이너A", twitter_url: "https://x.com/designerA" },
-    { role: "live2d", name: "리깅B", twitter_url: "https://x.com/riggerB" }
-  ],
-
-  vtuber_links: [
-    { type: "youtube", label: "YouTube 본채널", url: "https://youtube.com/@aoharumi" },
-    { type: "chzzk", label: "치지직", url: "https://chzzk.naver.com/aoharumi" },
-    { type: "twitter", label: "X", url: "https://x.com/aoharumi" }
-  ]
+/* HEADERS */
+const headers = {
+  apikey: SUPABASE_KEY,
+  Authorization: `Bearer ${SUPABASE_KEY}`,
+  "Content-Type": "application/json",
 };
 
 /* ===== DOM ===== */
 const cardGrid = document.querySelector(".card-grid");
 const modal = document.getElementById("detail-modal");
 
-/* ===== 유틸 ===== */
+/* ===== 유틸 함수 ===== */
 function daysSince(date) {
   if (!date) return "-";
-  return Math.floor((Date.now() - new Date(date)) / 86400000);
+  const d = new Date(date);
+  const diff = Math.floor((Date.now() - d) / (1000 * 60 * 60 * 24));
+  return diff;
 }
 
 function calcAge(birthday) {
@@ -44,19 +31,21 @@ function calcAge(birthday) {
   if (
     t.getMonth() < b.getMonth() ||
     (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())
-  ) age--;
+  )
+    age--;
   return age;
 }
 
-/* ===== 카드 ===== */
+/* ===== 카드 생성 ===== */
 function createCard(v) {
   const article = document.createElement("article");
   article.className = "vtuber-card";
 
+  /* 썸네일 */
   article.innerHTML = `
-    <img src="${v.image_url}" alt="">
+    <img src="${v.image_url || ""}" alt="버츄얼 유튜버">
     <h4>${v.name}</h4>
-    <p>${v.species} · ${v.gender}</p>
+    <p>${v.species || "-"} · ${v.gender || "-"}</p>
     <p>데뷔 D+${daysSince(v.debut_date)}</p>
     <button class="detail-btn">상세 보기</button>
   `;
@@ -68,50 +57,60 @@ function createCard(v) {
   return article;
 }
 
-/* ===== 모달 ===== */
+/* ===== 상세 모달 ===== */
 function openModal(v) {
   document.getElementById("modal-name").textContent = v.name;
-  document.getElementById("modal-avatar").src = v.image_url;
-  document.getElementById("modal-gender").textContent = v.gender;
-  document.getElementById("modal-birthday").textContent = v.birthday;
-  document.getElementById("modal-age").textContent = calcAge(v.birthday);
-  document.getElementById("modal-species").textContent = v.species;
-  document.getElementById("modal-fanname").textContent = v.fan_name;
-  document.getElementById("modal-oshi").textContent = v.oshi_mark;
-  document.getElementById("modal-debut").textContent =
-    `${v.debut_date} (D+${daysSince(v.debut_date)})`;
+  document.getElementById("modal-avatar").src = v.image_url || "";
 
-  const creators = document.getElementById("modal-creators");
-  creators.innerHTML = "";
-  v.vtuber_creators.forEach(c => {
-    creators.innerHTML += `<li>${c.role}: <a href="${c.twitter_url}" target="_blank">${c.name}</a></li>`;
+  /* 프로필 */
+  document.getElementById("modal-gender").textContent = v.gender || "-";
+  document.getElementById("modal-birthday").textContent = v.birthday || "-";
+  document.getElementById("modal-age").textContent = calcAge(v.birthday);
+  document.getElementById("modal-species").textContent = v.species || "-";
+  document.getElementById("modal-agency").textContent = v.agency || "-";
+  document.getElementById("modal-status").textContent = v.status || "-";
+  document.getElementById("modal-tags").innerHTML = "";
+
+  /* 태그 */
+  (v.tags || []).forEach(tag => {
+    const s = document.createElement("span");
+    s.className = "tag";
+    s.textContent = tag;
+    document.getElementById("modal-tags").appendChild(s);
   });
 
+  /* 제작자 */
+  const creators = document.getElementById("modal-creators");
+  creators.innerHTML = "";
+  (v.vtuber_creators || []).forEach(c => {
+    const li = document.createElement("li");
+    li.innerHTML = `${c.role}: <a href="${c.twitter_url}" target="_blank">${c.name}</a>`;
+    creators.appendChild(li);
+  });
+
+  /* 링크 */
   const links = document.getElementById("modal-links");
   links.innerHTML = "";
-  v.vtuber_links.forEach(l => {
-    links.innerHTML += `<li><strong>${l.label}</strong>: <a href="${l.url}" target="_blank">${l.url}</a></li>`;
+  (v.vtuber_links || []).forEach(l => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${l.label}</strong>: <a href="${l.url}" target="_blank">${l.url}</a>`;
+    links.appendChild(li);
   });
 
   modal.classList.remove("hidden");
 }
 
-/* ===== 닫기 ===== */
+/* ===== 모달 닫기 ===== */
 document.querySelector(".modal-close").onclick =
 document.querySelector(".modal-overlay").onclick =
   () => modal.classList.add("hidden");
 
-/* ===== 초기 렌더 ===== */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM loaded");
-  cardGrid.innerHTML = "";
-  cardGrid.appendChild(createCard(sampleVtuber));
-});
-
+/* ===== Supabase → 카드 렌더 ===== */
 async function loadVtubers() {
   try {
-    console.log("Supabase fetch 시작");
+    console.log("Supabase 데이터 로딩 시작");
 
+    /* REST API를 통한 Join fetch */
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/vtubers?select=*,vtuber_links(*),vtuber_creators(*)`,
       { headers }
@@ -119,7 +118,7 @@ async function loadVtubers() {
 
     if (!res.ok) {
       const text = await res.text();
-      console.error("Supabase 응답 오류", res.status, text);
+      console.error("Supabase 오류", res.status, text);
       return;
     }
 
@@ -127,17 +126,21 @@ async function loadVtubers() {
     console.log("불러온 VTuber 수:", data.length, data);
 
     cardGrid.innerHTML = "";
-
     if (data.length === 0) {
-      cardGrid.innerHTML = "<p>데이터가 없습니다.</p>";
+      cardGrid.innerHTML = "<p>등록된 버츄얼 유튜버가 없습니다.</p>";
       return;
     }
 
-    data.forEach(v => cardGrid.appendChild(createCard(v)));
+    data.forEach(v => {
+      cardGrid.appendChild(createCard(v));
+    });
 
   } catch (err) {
     console.error("Supabase fetch 실패", err);
   }
 }
 
-
+/* ===== 초기 실행 ===== */
+document.addEventListener("DOMContentLoaded", () => {
+  loadVtubers();
+});
