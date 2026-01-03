@@ -307,3 +307,33 @@ footer {
   box-shadow: 0 6px 14px rgba(0,0,0,0.12);
 }
 
+/* ... 기존 CSS 코드 끝 ... */
+
+/* ===== 모달 링크 아이콘 스타일 ===== */
+.link-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px; /* 아이콘 사이 간격 */
+  margin-top: 8px;
+}
+
+.link-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border-radius: 50%; /* 동그라미 모양 */
+  text-decoration: none;
+  font-size: 20px;
+  transition: all 0.2s ease;
+}
+
+.link-icon:hover {
+  background-color: var(--accent);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
