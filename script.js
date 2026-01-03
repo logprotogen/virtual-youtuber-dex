@@ -59,45 +59,42 @@ function createCard(v) {
 
 /* ===== 상세 모달 ===== */
 function openModal(v) {
-  document.getElementById("modal-name").textContent = v.name;
-  document.getElementById("modal-avatar").src = v.image_url || "";
+  setText("modal-name", v.name);
+  setText("modal-gender", v.gender);
+  setText("modal-birthday", v.birthday);
+  setText("modal-age", v.age_text);
+  setText("modal-species", v.species);
+  setText("modal-fanname", v.fan_name);
+  setText("modal-oshi", v.oshi_mark);
 
-  /* 프로필 */
-  document.getElementById("modal-gender").textContent = v.gender || "-";
-  document.getElementById("modal-birthday").textContent = v.birthday || "-";
-  document.getElementById("modal-age").textContent = calcAge(v.birthday);
-  document.getElementById("modal-species").textContent = v.species || "-";
-  document.getElementById("modal-agency").textContent = v.agency || "-";
-  document.getElementById("modal-status").textContent = v.status || "-";
-  document.getElementById("modal-tags").innerHTML = "";
+  setText(
+    "modal-debut",
+    v.debut_date
+      ? `${v.debut_date} (D+${daysSince(v.debut_date)})`
+      : "-"
+  );
 
-  /* 태그 */
-  (v.tags || []).forEach(tag => {
-    const s = document.createElement("span");
-    s.className = "tag";
-    s.textContent = tag;
-    document.getElementById("modal-tags").appendChild(s);
-  });
-
-  /* 제작자 */
   const creators = document.getElementById("modal-creators");
-  creators.innerHTML = "";
-  (v.vtuber_creators || []).forEach(c => {
-    const li = document.createElement("li");
-    li.innerHTML = `${c.role}: <a href="${c.twitter_url}" target="_blank">${c.name}</a>`;
-    creators.appendChild(li);
-  });
+  if (creators) {
+    creators.innerHTML = "";
+    (v.vtuber_creators || []).forEach(c => {
+      const li = document.createElement("li");
+      li.innerHTML = `${c.role}: <a href="${c.twitter_url}" target="_blank">${c.name}</a>`;
+      creators.appendChild(li);
+    });
+  }
 
-  /* 링크 */
   const links = document.getElementById("modal-links");
-  links.innerHTML = "";
-  (v.vtuber_links || []).forEach(l => {
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${l.label}</strong>: <a href="${l.url}" target="_blank">${l.url}</a>`;
-    links.appendChild(li);
-  });
+  if (links) {
+    links.innerHTML = "";
+    (v.vtuber_links || []).forEach(l => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="${l.url}" target="_blank">${l.label}</a>`;
+      links.appendChild(li);
+    });
+  }
 
-  modal.classList.remove("hidden");
+  document.getElementById("detail-modal").classList.remove("hidden");
 }
 
 /* ===== 모달 닫기 ===== */
@@ -144,3 +141,4 @@ async function loadVtubers() {
 document.addEventListener("DOMContentLoaded", () => {
   loadVtubers();
 });
+
