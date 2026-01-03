@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>버츄얼 유튜버 DEX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1>버츄얼 유튜버 DEX</h1>
+  <nav>
+    <a href="#">홈</a>
+    <a href="#">버츄얼 유튜버</a>
+    <a href="#">소속</a>
+    <a href="#">통계</a>
+  </nav>
+</header>
+
+<section id="search">
+  <h2>버츄얼 유튜버 검색</h2>
+  <input type="text" placeholder="이름 / 소속 / 태그 검색" />
+  <button>검색</button>
+</section>
+
+<main id="content">
+
+  <aside id="filters">
+    <h3>필터</h3>
+
+    <fieldset>
+      <legend>활동 상태</legend>
+      <label><input type="checkbox"> 활동중</label>
+      <label><input type="checkbox"> 졸업</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>소속</legend>
+      <label><input type="checkbox"> 개인</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>종족</legend>
+      <label><input type="checkbox"> 수인</label>
+    </fieldset>
+  </aside>
+
+  <section id="results">
+    <div class="result-info">
+      검색 결과 <strong>2</strong>명
+    </div>
+
+    <div class="card-grid">
+      <!-- 카드들은 JS에서 생성 -->
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 버츄얼 유튜버 DEX
+</footer>
+
+<!-- ================= 상세 보기 팝업 ================= -->
+<div id="detail-modal" class="modal hidden">
+  <div class="modal-overlay"></div>
+
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+
+    <div class="modal-body">
+      <img id="modal-avatar" src="" alt="버츄얼 유튜버 아바타">
+
+      <div class="modal-info">
+        <h2 id="modal-name"></h2>
+
+        <ul class="modal-profile">
+          <li>성별: <span id="modal-gender"></span></li>
+          <li>생일: <span id="modal-birthday"></span></li>
+          <li>나이: <span id="modal-age"></span></li>
+          <li>종족: <span id="modal-species"></span></li>
+          <li>팬네임: <span id="modal-fanname"></span></li>
+          <li>오시마크: <span id="modal-oshi"></span></li>
+          <li>데뷔: <span id="modal-debut"></span></li>
+        </ul>
+
+        <h3>제작</h3>
+        <ul id="modal-creators"></ul>
+
+        <h3>링크</h3>
+        <ul id="modal-links"></ul>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
