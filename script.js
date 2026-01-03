@@ -72,11 +72,15 @@ function createCard(v) {
 }
 
 /* ===== 상세 모달 ===== */
+/* ===== 상세 모달 ===== */
 function openModal(v) {
   setText("modal-name", v.name);
   setText("modal-gender", v.gender);
   setText("modal-birthday", v.birthday);
-  setText("modal-age", v.age_text);
+  
+  const age = calcAge(v.birthday);
+  setText("modal-age", age ? age + "세" : "-");
+
   setText("modal-species", v.species);
   setText("modal-fanname", v.fan_name);
   setText("modal-oshi", v.oshi_mark);
@@ -88,24 +92,63 @@ function openModal(v) {
       : "-"
   );
 
+  /* 제작자 정보 */
   const creators = document.getElementById("modal-creators");
   if (creators) {
     creators.innerHTML = "";
-    (v.vtuber_creators || []).forEach(c => {
-      const li = document.createElement("li");
-      li.innerHTML = `${c.role}: <a href="${c.twitter_url}" target="_blank">${c.name}</a>`;
-      creators.appendChild(li);
-    });
+    if (!v.vtuber_creators || v.vtuber_creators.length === 0) {
+      creators.innerHTML = "<li>정보 없음</li>";
+    } else {
+      v.vtuber_creators.forEach(c => {
+        const li = document.createElement("li");
+        li.innerHTML = `${c.role}: <a href="${c.twitter_url || '#'}" target="_blank">${c.name}</a>`;
+        creators.appendChild(li);
+      });
+    }
   }
 
-  const links = document.getElementById("modal-links");
-  if (links) {
-    links.innerHTML = "";
-    (v.vtuber_links || []).forEach(l => {
-      const li = document.createElement("li");
-      li.innerHTML = `<a href="${l.url}" target="_blank">${l.label}</a>`;
-      links.appendChild(li);
-    });
+  /* ⬇️ 링크 정보 (아이콘으로 변경) ⬇️ */
+  const linksContainer = document.getElementById("modal-links");
+  if (linksContainer) {
+    linksContainer.innerHTML = ""; // 초기화
+
+    if (!v.vtuber_links || v.vtuber_links.length === 0) {
+      linksContainer.innerHTML = "<p>정보 없음</p>";
+    } else {
+      v.vtuber_links.forEach(l => {
+        const label = l.label.toLowerCase();
+        let iconClass = "fas fa-link"; // 기본 아이콘 (사슬 모양)
+
+        // 레이블에 따라 아이콘 클래스 매핑
+        if (label.includes("youtube") || label.includes("유튜브")) iconClass = "fab fa-youtube";
+        else if (label.includes("twitter") || label.includes("x")) iconClass = "fab fa-x-twitter";
+        else if (label.includes("twitch") || label.includes("트위치")) iconClass = "fab fa-twitch";
+        else if (label.includes("instagram") || label.includes("인스타")) iconClass = "fab fa-instagram";
+        else if (label.includes("tiktok") || label.includes("틱톡")) iconClass = "fab fa-tiktok";
+        else if (label.includes("cafe") || label.includes("카페")) iconClass = "fas fa-coffee";
+        else if (label.includes("치지직")) iconClass = "fas fa-bolt"; // 치지직은 번개 아이콘으로 대체
+        else if (label.includes("spotify") || label.includes("스포티파이")) iconClass = "fab fa-spotify";
+        else if (label.includes("apple music") || label.includes("애플뮤직")) iconClass = "fab fa-apple";
+        else if (label.includes("soundcloud") || label.includes("사운드클라우드")) iconClass = "fab fa-soundcloud";
+        // 필요하면 여기에 더 추가하세요! (예: melon, genie 등은 기본 아이콘 사용)
+
+        const a = document.createElement("a");
+        a.href = l.url;
+        a.target = "_blank";
+        a.className = "link-icon";
+        a.title = l.label; // 마우스 올리면 원래 이름이 뜸
+        a.innerHTML = `<i class="${iconClass}"></i>`;
+        
+        linksContainer.appendChild(a);
+      });
+    }
+  }
+
+  // 아바타 이미지 설정 (없으면 기본 이미지나 숨김 처리)
+  const avatar = document.getElementById("modal-avatar");
+  if (avatar) {
+    avatar.src = v.image_url || ""; // 이미지가 없으면 빈 값
+    avatar.alt = `${v.name} 아바타`;
   }
 
   document.getElementById("detail-modal").classList.remove("hidden");
@@ -155,5 +198,6 @@ async function loadVtubers() {
 document.addEventListener("DOMContentLoaded", () => {
   loadVtubers();
 });
+
 
 
