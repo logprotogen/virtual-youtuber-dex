@@ -23,7 +23,6 @@ function daysSince(date) {
   return diff;
 }
 
-/* ⬇️ 이 함수를 추가해 주세요 ⬇️ */
 function setText(id, text) {
   const el = document.getElementById(id);
   if (el) {
@@ -44,6 +43,13 @@ function calcAge(birthday) {
   return age;
 }
 
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) {
+    // 텍스트가 없으면 "-" 표시
+    el.textContent = (text !== null && text !== undefined && text !== "") ? text : "-";
+  }
+}
 /* ===== 카드 생성 ===== */
 function createCard(v) {
   const article = document.createElement("article");
