@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>버츄얼 유튜버 DEX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -52,8 +53,7 @@
     </div>
 
     <div class="card-grid">
-      <!-- 카드들은 JS에서 생성 -->
-    </div>
+      </div>
   </section>
 
 </main>
@@ -62,7 +62,6 @@
   © 버츄얼 유튜버 DEX
 </footer>
 
-<!-- ================= 상세 보기 팝업 ================= -->
 <div id="detail-modal" class="modal hidden">
   <div class="modal-overlay"></div>
 
@@ -73,25 +72,24 @@
       <img id="modal-avatar" src="" alt="버츄얼 유튜버 아바타">
 
       <div class="modal-info">
-  <h2 id="modal-name"></h2>
+        <h2 id="modal-name"></h2>
 
-  <p><strong>성별:</strong> <span id="modal-gender"></span></p>
-  <p><strong>생일:</strong> <span id="modal-birthday"></span></p>
-  <p><strong>나이:</strong> <span id="modal-age"></span></p>
-  <p><strong>종족:</strong> <span id="modal-species"></span></p>
+        <p><strong>성별:</strong> <span id="modal-gender"></span></p>
+        <p><strong>생일:</strong> <span id="modal-birthday"></span></p>
+        <p><strong>나이:</strong> <span id="modal-age"></span></p>
+        <p><strong>종족:</strong> <span id="modal-species"></span></p>
 
-  <p><strong>팬네임:</strong> <span id="modal-fanname"></span></p>
-  <p><strong>오시마크:</strong> <span id="modal-oshi"></span></p>
+        <p><strong>팬네임:</strong> <span id="modal-fanname"></span></p>
+        <p><strong>오시마크:</strong> <span id="modal-oshi"></span></p>
 
-  <p><strong>데뷔:</strong> <span id="modal-debut"></span></p>
+        <p><strong>데뷔:</strong> <span id="modal-debut"></span></p>
 
-  <h3>제작</h3>
-  <ul id="modal-creators"></ul>
+        <h3>제작</h3>
+        <ul id="modal-creators"></ul>
 
-  <h3>링크</h3>
-  <ul id="modal-links"></ul>
-</div>
-
+        <h3>링크</h3>
+        <div id="modal-links" class="link-icons"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -99,4 +97,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
