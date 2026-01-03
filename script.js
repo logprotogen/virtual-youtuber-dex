@@ -23,6 +23,14 @@ function daysSince(date) {
   return diff;
 }
 
+/* ⬇️ 이 함수를 추가해 주세요 ⬇️ */
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.textContent = text ? text : "-";
+  }
+}
+
 function calcAge(birthday) {
   if (!birthday) return "-";
   const b = new Date(birthday);
@@ -141,4 +149,5 @@ async function loadVtubers() {
 document.addEventListener("DOMContentLoaded", () => {
   loadVtubers();
 });
+
 
