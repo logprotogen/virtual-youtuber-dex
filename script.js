@@ -121,56 +121,29 @@ function openModal(v) {
   }
 
   /* ⬇️ 링크 정보 (아이콘 + hover 툴팁용 data-site) ⬇️ */
-  const linksContainer = document.getElementById("modal-links");
-  if (linksContainer) {
-    linksContainer.innerHTML = ""; // 초기화
+  const a = document.createElement("a");
+a.href = l.url;
+a.target = "_blank";
+a.rel = "noopener noreferrer";
+a.className = "link-icon";
 
-    if (!v.vtuber_links || v.vtuber_links.length === 0) {
-      linksContainer.innerHTML = "<p>정보 없음</p>";
-    } else {
-      v.vtuber_links.forEach((l) => {
-        const labelText = (l?.label ?? "링크").toString();
-        const labelLower = labelText.toLowerCase();
-        let iconClass = "fas fa-link"; // 기본 아이콘 (사슬 모양)
+const host = getHostname(l.url);                // 이미 만들었던 함수
+const labelText = (l.label || "").toString().trim();
 
-        // 레이블에 따라 아이콘 클래스 매핑
-        if (labelLower.includes("youtube") || labelLower.includes("유튜브"))
-          iconClass = "fab fa-youtube";
-        else if (
-          labelLower.includes("twitter") ||
-          labelLower.includes("트위터") ||
-          labelLower === "x"
-        )
-          iconClass = "fab fa-x-twitter";
-        else if (labelLower.includes("twitch") || labelLower.includes("트위치"))
-          iconClass = "fab fa-twitch";
-        else if (
-          labelLower.includes("instagram") ||
-          labelLower.includes("인스타")
-        )
-          iconClass = "fab fa-instagram";
-        else if (labelLower.includes("tiktok") || labelLower.includes("틱톡"))
-          iconClass = "fab fa-tiktok";
-        else if (labelLower.includes("cafe") || labelLower.includes("카페"))
-          iconClass = "fas fa-coffee";
-        else if (labelLower.includes("치지직"))
-          iconClass = "fas fa-bolt"; // 치지직은 번개 아이콘으로 대체
-        else if (
-          labelLower.includes("spotify") ||
-          labelLower.includes("스포티파이")
-        )
-          iconClass = "fab fa-spotify";
-        else if (
-          labelLower.includes("apple music") ||
-          labelLower.includes("애플뮤직")
-        )
-          iconClass = "fab fa-apple";
-        else if (
-          labelLower.includes("soundcloud") ||
-          labelLower.includes("사운드클라우드")
-        )
-          iconClass = "fab fa-soundcloud";
-        // 필요하면 여기에 더 추가하세요! (예: melon, genie 등은 기본 아이콘 사용)
+// 캡션은 "라벨"이 있으면 라벨, 없으면 도메인
+const caption = labelText || host || "링크";
+
+// 접근성
+a.setAttribute("aria-label", caption);
+
+// ✅ 아이콘 동그라미 + 아래 캡션
+a.innerHTML = `
+  <span class="icon-bubble"><i class="${iconClass}"></i></span>
+  <span class="link-caption">${caption}</span>
+`;
+
+linksContainer.appendChild(a);
+
 
         const a = document.createElement("a");
         a.href = l?.url || "#";
@@ -251,6 +224,7 @@ async function loadVtubers() {
 document.addEventListener("DOMContentLoaded", () => {
   loadVtubers();
 });
+
 
 
 
